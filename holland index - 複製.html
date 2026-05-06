@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holland RIASEC 職業興趣探索</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=DM+Mono:wght@500&display=swap');
+
+  :root {
+    --bg-main: #fcf9f2;      
+    --card-bg: #ffffff;      
+    --text-primary: #4e342e; 
+    --text-secondary: #795548; 
+    --accent: #8d6e63;       
+    --border-color: #efebe9; 
+    
+    /* RIASEC Colors */
+    --R: #d32f2f;
+    --I: #1976d2;
+    --A: #7b1fa2;
+    --S: #388e3c;
+    --E: #f57c00;
+    --C: #455a64;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: var(--bg-main);
+    background-image: radial-gradient(#d7ccc8 0.5px, transparent 0.5px);
+    background-size: 30px 30px;
+    color: var(--text-primary);
+    line-height: 1.6;
+    padding: 40px 20px;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 30px; }
+  h1 { 
+    font-family: 'Noto Serif TC', serif;
+    font-size: 36px; font-weight: 700; margin-bottom: 8px; 
+    color: #5d4037; 
+  }
+  .subtitle { color: var(--text-secondary); font-size: 16px; }
+
+  /* Grid Layouts */
+  .grid-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 10px 30px rgba(93, 64, 55, 0.08);
+    border: 1px solid var(--border-color);
+  }
+
+  .card-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 20px; color: #5d4037;
+    margin-bottom: 25px; display: flex; align-items: center; gap: 12px;
+  }
+  .card-title::before { content: ""; width: 5px; height: 20px; background: var(--accent); border-radius: 10px; }
+
+  /* Radar Section (Top Left) */
+  .radar-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #radarSvg { width: 100%; max-width: 500px; height: auto; }
+
+  .code-display {
+    margin-top: 20px; text-align: center; padding: 10px 40px;
+    background: #faf7f2; border-radius: 50px; border: 1px solid var(--border-color);
+  }
+  .code-value { font-family: 'DM Mono', monospace; font-size: 44px; font-weight: 700; letter-spacing: 8px; }
+
+  /* Sliders (Top Right) */
+  .slider-item { margin-bottom: 22px; }
+  .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .type-info { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
+  .val-badge { font-family: 'DM Mono', monospace; font-weight: 700; font-size: 20px; }
+
+  input[type="range"] {
+    -webkit-appearance: none; width: 100%; height: 10px;
+    background: #efebe9; border-radius: 5px; outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+    background: #fff; border: 4px solid currentColor; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  /* Bottom Left: Analysis */
+  .analysis-item {
+    margin-bottom: 15px; padding: 15px; border-radius: 12px; 
+    background: #fdfbf9; border-left: 6px solid var(--accent);
+  }
+  .analysis-item strong { display: block; font-size: 17px; margin-bottom: 4px; }
+  .analysis-item p { font-size: 15px; color: var(--text-secondary); }
+
+  /* Bottom Right: Careers */
+  .career-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .career-tag {
+    background: #fff; padding: 8px 18px; border-radius: 10px;
+    font-size: 14px; border: 1.5px solid var(--border-color);
+    transition: all 0.2s ease;
+  }
+  .career-tag:hover { border-color: var(--accent); background: #faf7f2; transform: translateY(-2px); }
+
+  /* Disclaimer */
+  .footer-note {
+    background: #f5f0e9; padding: 25px; border-radius: 15px;
+    font-size: 13.5px; color: #6d4c41; line-height: 1.8; margin-top: 40px;
+    border: 1px solid #d7ccc8;
+  }
+
+  @media (max-width: 900px) { .grid-section { grid-template-columns: 1fr; } }
+  @media print { .no-print { display: none; } body { background: white; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Holland RIASEC 職業興趣雷達</h1>
+    <p class="subtitle">自評Holland分數，雷達圖即時展示特質輪廓</p>
+  </header>
+
+  <div class="grid-section">
+    <!-- Top Left: Radar -->
+    <section class="card radar-wrap">
+      <h3 class="card-title">興趣輪廓分佈</h3>
+      <svg id="radarSvg" viewBox="0 0 460 460" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="code-display">
+        <div class="code-value" id="codeValue">---</div>
+      </div>
+    </section>
+
+    <!-- Top Right: Sliders -->
+    <section class="card">
+      <h3 class="card-title">自評分數 (1 - 10)</h3>
+      <div id="sliderGroup"></div>
+    </section>
+  </div>
+
+  <div class="grid-section">
+    <!-- Bottom Left: Analysis -->
+    <section class="card">
+      <h3 class="card-title">核心特質解析</h3>
+      <div id="analysisList"></div>
+    </section>
+
+    <!-- Bottom Right: Career Direction -->
+    <section class="card">
+      <h3 class="card-title">相關職業方向</h3>
+      <div id="careerTags" class="career-grid"></div>
+    </section>
+  </div>
+
+  <div class="footer-note">
+    <strong>探索提醒：</strong>此雷達圖的呈現並非標籤與框架，僅用於參考與初步探索自我，若想要更清楚的了解，請找職涯諮詢師針對更細部的狀況做對照。
+  </div>
+
+  <div class="no-print" style="text-align: center; margin-top: 30px;">
+    <button onclick="window.print()" style="padding: 15px 40px; background: #5d4037; color: white; border: none; border-radius: 50px; cursor: pointer; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">匯出分析報告 PDF</button>
+  </div>
+</div>
+
+<script>
+const TYPES = [
+  { code:'R', name:'實踐者 Realistic', color:'#d32f2f', desc:'偏好具體任務，擅長操作工具與解決技術問題。' },
+  { code:'I', name:'思考者 Investigative', color:'#1976d2', desc:'具好奇心，擅長分析、觀察與解決科學或抽象難題。' },
+  { code:'A', name:'創造者 Artistic', color:'#7b1fa2', desc:'重視美感與創意，追求自我表達，不喜受規矩束縛。' },
+  { code:'S', name:'助人者 Social', color:'#388e3c', desc:'熱衷於教導、協助、醫療或諮商，擅長與人互動。' },
+  { code:'E', name:'影響者 Enterprising', color:'#f57c00', desc:'具領導力與說服力，重視目標達成，擅長經營管理。' },
+  { code:'C', name:'組織者 Conventional', color:'#455a64', desc:'做事細心精確，重視規則與秩序，擅長處理數據流程。' }
+];
+
+const CAREER_DB = {
+  R:['機械工程','建築師','飛行員','技術開發','廚師','維修專家'],
+  I:['研究員','數據分析','醫師','程式開發','經濟學家','科學家'],
+  A:['視覺設計','作家','音樂人','廣告企劃','演員','建築設計'],
+  S:['教育諮詢','心理諮商','社工人員','人資管理','護理師','職涯導師'],
+  E:['專案經理','創業家','律師','業務主管','投資顧問','政治人物'],
+  C:['會計財務','行政管理','精算師','品質控管','數據登錄','稅務專家']
+};
+
+const CENTER = 230, MAX_R = 155, NS = "http://www.w3.org/2000/svg";
+
+function polar(idx, r) {
+  const angle = (idx * 60 - 90) * (Math.PI / 180);
+  return { x: CENTER + r * Math.cos(angle), y: CENTER + r * Math.sin(angle) };
+}
+
+function initRadar() {
+  const svg = document.getElementById('radarSvg');
+  // Background polygons
+  for(let i=1; i<=5; i++) {
+    const r = (i/5) * MAX_R;
+    const pts = TYPES.map((_, j) => { const p = polar(j, r); return `${p.x},${p.y}`; }).join(' ');
+    const poly = document.createElementNS(NS, 'polygon');
+    poly.setAttribute('points', pts); poly.setAttribute('fill', 'none'); 
+    poly.setAttribute('stroke', '#d7ccc8'); poly.setAttribute('stroke-dasharray', '3,3');
+    svg.appendChild(poly);
+  }
+  // Axis & Large Labels
+  TYPES.forEach((t, i) => {
+    const p = polar(i, MAX_R);
+    const line = document.createElementNS(NS, 'line');
+    line.setAttribute('x1', CENTER); line.setAttribute('y1', CENTER);
+    line.setAttribute('x2', p.x); line.setAttribute('y2', p.y);
+    line.setAttribute('stroke', '#d7ccc8');
+    svg.appendChild(line);
+
+    // Bigger Type Labels
+    const lp = polar(i, MAX_R + 40);
+    const text = document.createElementNS(NS, 'text');
+    text.setAttribute('x', lp.x); text.setAttribute('y', lp.y - 5);
+    text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-weight', '700');
+    text.setAttribute('fill', t.color); text.setAttribute('font-size', '22'); // Adjusted size
+    text.textContent = t.code;
+    svg.appendChild(text);
+    
+    const label = document.createElementNS(NS, 'text');
+    label.setAttribute('x', lp.x); label.setAttribute('y', lp.y + 18);
+    label.setAttribute('text-anchor', 'middle'); label.setAttribute('font-size', '15'); // Adjusted size
+    label.setAttribute('font-weight', '600'); label.setAttribute('fill', '#5d4037');
+    label.textContent = t.name.split(' ')[0];
+    svg.appendChild(label);
+  });
+  const dataPoly = document.createElementNS(NS, 'polygon');
+  dataPoly.id = 'dataPoly'; 
+  dataPoly.setAttribute('fill', 'rgba(141, 110, 99, 0.2)'); 
+  dataPoly.setAttribute('stroke', '#5d4037'); dataPoly.setAttribute('stroke-width', '3');
+  svg.appendChild(dataPoly);
+}
+
+function update() {
+  const scores = TYPES.map(t => parseInt(document.getElementById('in_'+t.code).value));
+  const pts = scores.map((s, i) => { const p = polar(i, (s/10) * MAX_R); return `${p.x},${p.y}`; }).join(' ');
+  document.getElementById('dataPoly').setAttribute('points', pts);
+
+  const sorted = TYPES.map((t, i) => ({...t, score: scores[i]})).sort((a,b) => b.score - a.score);
+  const top3 = sorted.slice(0, 3);
+  
+  document.getElementById('codeValue').innerHTML = top3.map(t => `<span style="color:${t.color}">${t.code}</span>`).join('');
+  
+  const careers = [...new Set(top3.flatMap(t => CAREER_DB[t.code]))];
+  document.getElementById('careerTags').innerHTML = careers.map(c => `<div class="career-tag">${c}</div>`).join('');
+  
+  document.getElementById('analysisList').innerHTML = top3.map(t => `
+    <div class="analysis-item" style="border-left-color:${t.color}">
+      <strong style="color:${t.color}">${t.name}</strong>
+      <p>${t.desc}</p>
+    </div>
+  `).join('');
+}
+
+function buildSliders() {
+  const group = document.getElementById('sliderGroup');
+  TYPES.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'slider-item';
+    div.innerHTML = `
+      <div class="slider-header">
+        <div class="type-info" style="color:${t.color}"><strong>${t.name}</strong></div>
+        <div class="val-badge" id="val_${t.code}" style="color:${t.color}">5</div>
+      </div>
+      <input type="range" id="in_${t.code}" min="1" max="10" value="5" style="color:${t.color}" 
+        oninput="document.getElementById('val_${t.code}').innerText=this.value; update();">
+    `;
+    group.appendChild(div);
+  });
+}
+
+buildSliders(); initRadar(); update();
+</script>
+</body>
+</html>
